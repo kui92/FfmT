@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
     private FfmpegTool ffmpegTool=FfmpegTool.getInstance();
     private String clipResutl="";
 
-
+    //
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
