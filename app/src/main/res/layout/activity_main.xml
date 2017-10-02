@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:onClick="click1"
+        android:id="@+id/sample_text"
+        android:layout_width="wrap_content"
+        android:textSize="20dp"
+        android:gravity="center"
+        android:layout_height="50dp"
+        android:text="执行FFmpeg裁剪命令"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:onClick="click2"
+        android:layout_width="wrap_content"
+        android:textSize="20dp"
+        android:gravity="center"
+        android:layout_height="50dp"
+        android:text="把视频解压成一帧一帧的图像"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:onClick="click3"
+        android:layout_width="80dp"
+        android:textSize="20dp"
+        android:gravity="center"
+        android:layout_height="50dp"
+        android:text="视频压缩"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</LinearLayout>
