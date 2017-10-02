@@ -6,4 +6,5 @@ package com.esay.ffmt;
  */
 
 public class A {
+
 }
