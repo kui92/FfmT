@@ -1,10 +1,7 @@
 package com.esay.ffmtool;
 
-import android.os.Handler;
-import android.os.Message;
+import android.app.Activity;
 import android.util.Log;
-
-import static android.R.attr.tag;
 
 /**
  * Created by ZBK on 2017/9/28.
@@ -25,58 +22,30 @@ public class FfmpegTool {
          */
         public void clipResult(int code,String src,String dst,boolean sucess,int tag);
     }
-    private static FfmpegTool instance=new FfmpegTool();
+    private static FfmpegTool instance;
 
-    private final int CLIP=0;
-    private final int DECOD_IMAGE=1;
-    private final int COMPRESS=2;
+    private Activity activity;
 
-    private Handler handler=new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            Result result= (Result) msg.obj;
-            if (msg.what==CLIP){
-                if (msg.arg1==0){
-                    if (result.call!=null)result.call.clipResult(result.retCode,result.src,result.dst,true,result.tag);
-                }else {
-                    if (result.call!=null)result.call.clipResult(result.retCode,result.src,result.dst,false,result.tag);
-                }
-            }else if (msg.what==DECOD_IMAGE){
-                if (msg.arg1==0){
-                    if (result.call!=null)result.call.clipResult(result.retCode,result.src,result.dst,true,result.tag);
-                }else {
-                    if (result.call!=null)result.call.clipResult(result.retCode,result.src,result.dst,false,result.tag);
-                }
-            }else if (msg.what==COMPRESS){
-                if (msg.arg1==0){
-                    if (result.call!=null)result.call.clipResult(result.retCode,result.src,result.dst,true,result.tag);
-                }else {
-                    if (result.call!=null)result.call.clipResult(result.retCode,result.src,result.dst,false,result.tag);
-                }
-            }
-        }
-    };
+
+
     private  FfmpegTool(){
 
     }
 
+    private void init(Activity activity){
+        this.activity=activity;
+    }
 
 
-    public static FfmpegTool getInstance(){
+
+    public static FfmpegTool getInstance(Activity activity){
         if (instance==null){
             synchronized(FfmpegTool.class){
                 if (instance == null)instance = new FfmpegTool();
             }
         }
+        instance.init(activity);
         return instance;
-    }
-
-     class Result{
-        public String src;
-        public String dst;
-        public int retCode;
-        public int tag;
-        public VideoResult call;
     }
 
     static {
@@ -95,21 +64,19 @@ public class FfmpegTool {
 
 
 
-    public int videoToImage(String src,String dir,int startTime,int count,VideoResult call){
-        int result=-1;
-        result=decodToImage(src,dir,startTime,count);
+    public int videoToImage(final String src, final String dir, int startTime, int count, final VideoResult call, final int tag){
+        final int result=decodToImage(src,dir,startTime,count);
         if (call!=null){
-            Result result1=new Result();
-            result1.src=src;
-            result1.dst=dir;
-            result1.retCode=result;
-            result1.call=call;
-            result1.tag=tag;
-            Message message=new Message();
-            message.what=DECOD_IMAGE;
-            message.arg1=result;
-            message.obj=result1;
-            handler.sendMessage(message);
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean ret=true;
+                    if (result!=0){
+                        ret=false;
+                    }
+                    call.clipResult(result,src,dir,ret,tag);
+                }
+            });
         }
         return result;
     }
@@ -125,26 +92,20 @@ public class FfmpegTool {
      * @param duration 裁剪时长
      * @return
      */
-    public  int clipVideo(String src,String dst,int startTime,int duration,int tag,VideoResult call){
+    public  int clipVideo(final String src, final String dst, int startTime, int duration, final int tag, final VideoResult call){
         String cmd=String.format("ffmpeg -y -ss "+startTime+" -t "+duration+
         " -i "+src+" -vcodec copy -acodec copy -strict -2 "+dst);
         String regulation="[ \\t]+";
         Log.i("clipVideo","cmd:"+cmd);
         final String[] split = cmd.split(regulation);
-        int result=-1;
-        result=cmdRun(split);
+        final int result=cmdRun(split);
         if (call!=null){
-            Result result1=new Result();
-            result1.src=src;
-            result1.dst=dst;
-            result1.retCode=result;
-            result1.call=call;
-            result1.tag=tag;
-            Message message=new Message();
-            message.what=COMPRESS;
-            message.arg1=result;
-            message.obj=result1;
-            handler.sendMessage(message);
+           activity.runOnUiThread(new Runnable() {
+               @Override
+               public void run() {
+                   call.clipResult(result,src,dst,result==0,tag);
+               }
+           });
         }
         return result;
     }
@@ -159,31 +120,29 @@ public class FfmpegTool {
      * @param call 回调
      * @return
      */
-    public int compressVideo(String src,String dst,int tag,VideoResult call){
-        dst=dst+"temp"+System.currentTimeMillis()/1000+".mp4";
+    public int compressVideo(final String src,final String dst, final int tag, final VideoResult call){
+        final String dst2=dst+"temp"+System.currentTimeMillis()/1000+".mp4";
         String cmd=String.format("ffmpeg -threads 32 -y -i "+src
-                +" -b:v 1500k -bufsize 3000k -maxrate 2000k -preset superfast "+dst);
+                +" -b:v 1500k -bufsize 3000k -maxrate 2000k -preset superfast "+dst2);
         //cmd="ffmpeg -threads 64 -i /storage/emulated/0/test/out.mp4 -c:v libx264  -x264opts bitrate=2000:vbv-maxrate=2500  -crf 20 -preset superfast  -vbr 4   /storage/emulated/0/test/tes.mp4";
         String regulation="[ \\t]+";
         Log.i("compressVideo","cmd:"+cmd);
         final String[] split = cmd.split(regulation);
-        int result=-1;
-        result=cmdRun(split);
+        final int result=cmdRun(split);
         if (call!=null){
-            Result result1=new Result();
-            result1.src=src;
-            result1.dst=dst;
-            result1.retCode=result;
-            result1.call=call;
-            result1.tag=tag;
-            Message message=new Message();
-            message.what=COMPRESS;
-            message.arg1=result;
-            message.obj=result1;
-            handler.sendMessage(message);
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    call.clipResult(result,src,dst2,result==0,tag);
+                }
+            });
         }
         Log.i("compressVideo","result:"+result);
         return result;
+    }
+
+    public void relase(){
+        this.activity=null;
     }
 
 

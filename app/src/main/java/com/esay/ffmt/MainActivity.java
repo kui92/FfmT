@@ -15,7 +15,7 @@ import static android.R.attr.path;
 public class MainActivity extends AppCompatActivity {
 
     // Used to load the 'native-lib' library on application startup.
-    private FfmpegTool ffmpegTool=FfmpegTool.getInstance();
+    private FfmpegTool ffmpegTool=FfmpegTool.getInstance(MainActivity.this);
     private String clipResutl="";
 
     //
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 String path= Environment.getExternalStorageDirectory().getPath()+ File.separator+"test"+File.separator;
                 String video=path+"c.mp4";
-                FfmpegTool.getInstance().videoToImage(video.replaceAll(File.separator, "/"), path.replaceAll(File.separator, "/"), 0, 60, new FfmpegTool.VideoResult() {
+                FfmpegTool.getInstance(MainActivity.this).videoToImage(video.replaceAll(File.separator, "/"), path.replaceAll(File.separator, "/"), 0, 60, new FfmpegTool.VideoResult() {
                     @Override
                     public void clipResult(int code, String src, String dst, boolean sucess, int tag) {
                         Log.i("MainActivity","code:"+code);
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.i("MainActivity","sucess:"+sucess);
                         Log.i("MainActivity","tag:"+tag);
                     }
-                });
+                },0);
             }
         }.start();
 
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 String path= Environment.getExternalStorageDirectory().getPath()+ File.separator+"test"+File.separator;
-                FfmpegTool.getInstance().compressVideo("/storage/emulated/0/test/out.mp4", path, 2, new FfmpegTool.VideoResult() {
+                FfmpegTool.getInstance(MainActivity.this).compressVideo("/storage/emulated/0/test/out.mp4", path, 2, new FfmpegTool.VideoResult() {
                     @Override
                     public void clipResult(int code, String src, String dst, boolean sucess, int tag) {
                         Log.i("MainActivity","code:"+code);
